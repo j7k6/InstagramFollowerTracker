@@ -65,7 +65,7 @@ while True:
     followers_added = list(set(followers_new) - set(followers_old))
     followers_removed = list(set(followers_old) - set(followers_new))
 
-    print(f"{time.strftime('%Y-%m-%d %H:%M:%S')}: {len(followers_new)} ({len(followers_added):+d}/-{len(followers_removed)})")
+    print(f"{time.strftime('%Y-%m-%d %H:%M:%S')}: {len(followers_new)} (\033[01m\033[92m{len(followers_added):+d}\033[00m/\033[01m\033[91m-{len(followers_removed)}\033[00m)")
 
     if len(followers_added) > 0:
         for user_id in followers_added:
@@ -75,7 +75,7 @@ while True:
                 print(e)
                 continue
 
-            print(f"\033[01m\033[92mhttps://instagram.com/{user_url}/\033[00m")
+            print(f"\033[01m\033[92mhttps://instagram.com/{user_name}/\033[00m")
 
     if len(followers_removed) > 0:
         for user_id in followers_removed:
