@@ -1,14 +1,10 @@
 from instagrapi import Client
 import json
 import time
-import getpass
 
 
 login = False
 session_id = None
-username = None
-password = None
-totp = None
 
 while login is False:
     try:
@@ -25,14 +21,6 @@ while login is False:
             print(e)
             pass
 
-    if username is not None:
-        try:
-            cl = Client()
-            cl.login(username, password, verification_code=totp)
-        except Exception as e:
-            print(e)
-            pass
-
     try:
         user_id = cl.account_info().dict()["pk"]
         login = True
@@ -40,13 +28,6 @@ while login is False:
         print("---")
         
         session_id = input("session_id: ") or None
-
-        if session_id is not None:
-            continue
-
-        username = input("username: ")
-        password = getpass.getpass("password: ")
-        totp = input("totp: ")
 
 try:
     with open("config.json", "w") as c:
@@ -81,38 +62,37 @@ while True:
         print(e)
         break
 
-    unfollowers = list(set(followers_old) - set(followers_new))
+    followers_added = list(set(followers_new) - set(followers_old))
+    followers_removed = list(set(followers_old) - set(followers_new))
 
-    print(f"{time.strftime('%Y-%m-%d %H:%M:%S')}: {len(followers_new)} ({-len(unfollowers)})")
+    print(f"{time.strftime('%Y-%m-%d %H:%M:%S')}: {len(followers_new)} ({len(followers_added):+d}/-{len(followers_removed)})")
 
-    if len(unfollowers) > 0:
-        for unfollower_id in unfollowers:
+    if len(followers_added) > 0:
+        for user_id in followers_added:
             try:
-                unfollower_username = cl.username_from_user_id(unfollower_id)
+                user_name = cl.username_from_user_id(user_id)
+            except Exception as e:
+                print(e)
+                continue
+
+            print(f"\033[01m\033[92mhttps://instagram.com/{user_url}/\033[00m")
+
+    if len(followers_removed) > 0:
+        for user_id in followers_removed:
+            try:
+                user_name = cl.username_from_user_id(user_id)
             except Exception as e:
                 print(e)
                 continue
 
             try:
-                """cl.user_unfollow(unfollower_id)"""
-                unfollowed = True
-            except Exception as e:
-                print(e)
-                unfollowed = False
-
-            try:
                 with open("unfollowers.txt", "a+") as f:
-                    f.write(f"{unfollower_id}\n")
+                    f.write(f"{user_id}\n")
             except Exception as e:
                 print(e)
                 pass
 
-            unfollower_url = f"https://instagram.com/{unfollower_username}/"
-
-            if unfollowed:
-                print(f"\033[01m\033[91m{unfollower_url}\033[00m")
-            else:
-                print(f"{unfollower_url}")
+            print(f"\033[01m\033[91mhttps://instagram.com/{user_name}/\033[00m")
 
     try:
         with open("followers.txt", "w") as f:
