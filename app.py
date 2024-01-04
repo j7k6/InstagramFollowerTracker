@@ -24,6 +24,8 @@ while login is False:
     try:
         user_id = cl.account_info().dict()["pk"]
         login = True
+          
+        print(f"logged in as '{cl.account_info().dict()['username']}'")
     except:
         print("---")
         
