@@ -47,56 +47,61 @@ while True:
         pass
     finally:
         start_time = time.time()
+    
+    followers_new = []
 
     try:
         followers = cl.user_followers(user_id, False)
-        followers_new = list(followers.keys())
+
+        for follower_id in list(followers.keys()):
+            followers_new.append({"id": follower_id, "username": followers[follower_id].username})
+
+        assert len(followers) > 0
     except Exception as e:
         print(e)
         continue
 
+    followers_old = []
+
     try:
         with open("followers.txt") as f:
-            followers_old = f.read().split("\n")
-    except FileNotFoundError:
-        followers_old = []
+            for follower in f.read().splitlines():
+                (follower_id, follower_username) = follower.split("|")
+                followers_old.append({"id": follower_id, "username": follower_username})
     except Exception as e:
         print(e)
-        break
+        followers_old = []
 
     try:
         with open("followers.txt", "w") as f:
-            f.write("\n".join(followers_new))
+            followers_out = []
+
+            for follower in followers_new:
+                followers_out.append(f"{follower['id']}|{follower['username']}")
+
+            f.write("\n".join(followers_out))
     except Exception as e:
         print(e)
         break
 
-    followers_added = list(set(followers_new) - set(followers_old))
-    followers_removed = list(set(followers_old) - set(followers_new))
+    followers_added = list(set([f["id"] for f in followers_new]) - set([f["id"] for f in followers_old]))
+    followers_removed = list(set([f["id"] for f in followers_old]) - set([f["id"] for f in followers_new]))
 
     print(f"{time.strftime('%Y-%m-%d %H:%M:%S')}: {len(followers_new)} (\033[01m\033[92m{len(followers_added):+d}\033[00m/\033[01m\033[91m-{len(followers_removed)}\033[00m)")
 
     if len(followers_old) > 0 and len(followers_added) > 0:
         for user_id in followers_added:
-            try:
-                user_name = cl.username_from_user_id(user_id)
-            except Exception as e:
-                print(e)
-                continue
+            user_name = [u for u in followers_new if u["id"] == user_id][0]["username"]           
 
             print(f"\033[01m\033[92mhttps://instagram.com/{user_name}/\033[00m")
 
     if len(followers_old) > 0 and len(followers_removed) > 0:
         for user_id in followers_removed:
-            try:
-                user_name = cl.username_from_user_id(user_id)
-            except Exception as e:
-                print(e)
-                continue
+            user_name = [u for u in followers_old if u["id"] == user_id][0]["username"]           
 
             try:
                 with open("unfollowers.txt", "a+") as f:
-                    f.write(f"{user_id}\n")
+                    f.write(f"{user_id}|{user_name}\n")
             except Exception as e:
                 print(e)
                 pass
