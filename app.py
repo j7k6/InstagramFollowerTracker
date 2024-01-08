@@ -91,7 +91,7 @@ while True:
     if len(followers_old) > 0 and len(followers_added) > 0:
         for follower_id in followers_added:
             try:
-                follower_username = [u for u in followers_new if u["id"] == follower_id][0]["username"]           
+                follower_username = [f for f in followers_new if f["id"] == follower_id][0]["username"]           
 
                 print(f"\033[01m\033[92mhttps://instagram.com/{follower_username}/\033[00m")
             except:
@@ -100,7 +100,7 @@ while True:
     if len(followers_old) > 0 and len(followers_removed) > 0:
         for follower_id in followers_removed:
             try:
-                follower_username = [u for u in followers_old if u["id"] == follower_id][0]["username"] 
+                follower_username = [f for f in followers_old if f["id"] == follower_id][0]["username"] 
 
                 print(f"\033[01m\033[91mhttps://instagram.com/{follower_username}/\033[00m")
 
