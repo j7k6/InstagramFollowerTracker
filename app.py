@@ -68,8 +68,7 @@ while True:
             for follower in f.read().splitlines():
                 (follower_id, follower_username) = follower.split("|")
                 followers_old.append({"id": follower_id, "username": follower_username})
-    except Exception as e:
-        print(e)
+    except:
         followers_old = []
 
     try:
@@ -91,19 +90,21 @@ while True:
 
     if len(followers_old) > 0 and len(followers_added) > 0:
         for user_id in followers_added:
-            user_name = [u for u in followers_new if u["id"] == user_id][0]["username"]           
+            try:
+                user_name = [u for u in followers_new if u["id"] == user_id][0]["username"]           
 
-            print(f"\033[01m\033[92mhttps://instagram.com/{user_name}/\033[00m")
+                print(f"\033[01m\033[92mhttps://instagram.com/{user_name}/\033[00m")
+            except:
+                pass
 
     if len(followers_old) > 0 and len(followers_removed) > 0:
         for user_id in followers_removed:
-            user_name = [u for u in followers_old if u["id"] == user_id][0]["username"]           
-
             try:
+                user_name = [u for u in followers_old if u["id"] == user_id][0]["username"] 
+
+                print(f"\033[01m\033[91mhttps://instagram.com/{user_name}/\033[00m")
+
                 with open("unfollowers.txt", "a+") as f:
                     f.write(f"{user_id}|{user_name}\n")
-            except Exception as e:
-                print(e)
+            except:
                 pass
-
-            print(f"\033[01m\033[91mhttps://instagram.com/{user_name}/\033[00m")
