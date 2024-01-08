@@ -64,7 +64,7 @@ while True:
     followers_old = []
 
     try:
-        with open("followers.txt") as f:
+        with open(f"followers_{user_id}.txt") as f:
             for follower in f.read().splitlines():
                 (follower_id, follower_username) = follower.split("|")
                 followers_old.append({"id": follower_id, "username": follower_username})
@@ -72,7 +72,7 @@ while True:
         followers_old = []
 
     try:
-        with open("followers.txt", "w") as f:
+        with open(f"followers_{user_id}.txt", "w") as f:
             followers_out = []
 
             for follower in followers_new:
@@ -89,22 +89,22 @@ while True:
     print(f"{time.strftime('%Y-%m-%d %H:%M:%S')}: {len(followers_new)} (\033[01m\033[92m{len(followers_added):+d}\033[00m/\033[01m\033[91m-{len(followers_removed)}\033[00m)")
 
     if len(followers_old) > 0 and len(followers_added) > 0:
-        for user_id in followers_added:
+        for follower_id in followers_added:
             try:
-                user_name = [u for u in followers_new if u["id"] == user_id][0]["username"]           
+                follower_username = [u for u in followers_new if u["id"] == follower_id][0]["username"]           
 
-                print(f"\033[01m\033[92mhttps://instagram.com/{user_name}/\033[00m")
+                print(f"\033[01m\033[92mhttps://instagram.com/{follower_username}/\033[00m")
             except:
                 pass
 
     if len(followers_old) > 0 and len(followers_removed) > 0:
-        for user_id in followers_removed:
+        for follower_id in followers_removed:
             try:
-                user_name = [u for u in followers_old if u["id"] == user_id][0]["username"] 
+                follower_username = [u for u in followers_old if u["id"] == follower_id][0]["username"] 
 
-                print(f"\033[01m\033[91mhttps://instagram.com/{user_name}/\033[00m")
+                print(f"\033[01m\033[91mhttps://instagram.com/{follower_username}/\033[00m")
 
-                with open("unfollowers.txt", "a+") as f:
-                    f.write(f"{user_id}|{user_name}\n")
+                with open(f"unfollowers_{user_id}.txt", "a+") as f:
+                    f.write(f"{follower_id}|{follower_username}\n")
             except:
                 pass
