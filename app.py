@@ -65,16 +65,21 @@ while True:
 
     try:
         with open(f"followers_{user_id}.txt") as f:
-            for follower in f.read().splitlines():
-                (follower_id, follower_username) = follower.split("|")
-                followers_old.append({"id": follower_id, "username": follower_username})
+            followers_raw = f.read().splitlines()
+    except:
+        pass
+
+    try:
+        for follower in followers_raw:
+            (follower_id, follower_username) = follower.split("|")
+            followers_old.append({"id": follower_id, "username": follower_username})
     except:
         followers_old = []
 
+    followers_out = []
+
     try:
         with open(f"followers_{user_id}.txt", "w") as f:
-            followers_out = []
-
             for follower in followers_new:
                 followers_out.append(f"{follower['id']}|{follower['username']}")
 
