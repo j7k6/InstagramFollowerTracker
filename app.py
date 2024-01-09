@@ -27,15 +27,18 @@ while login is False:
           
         print(f"logged in as '{cl.account_info().dict()['username']}'")
     except:
+        print("login failed!")
         print("---")
         
         session_id = input("session_id: ") or None
+
 
 try:
     with open("config.json", "w") as c:
         json.dump(cl.get_settings(), c)
 except Exception as e:
     print(e)
+
 
 while True:
     print("---")
@@ -47,7 +50,8 @@ while True:
         pass
     finally:
         start_time = time.time()
-    
+
+
     followers_new = []
 
     try:
@@ -60,6 +64,7 @@ while True:
     except Exception as e:
         print(e)
         continue
+
 
     followers_old = []
 
@@ -76,6 +81,7 @@ while True:
     except:
         followers_old = []
 
+
     followers_out = []
 
     try:
@@ -88,10 +94,12 @@ while True:
         print(e)
         break
 
+
     followers_added = list(set([f["id"] for f in followers_new]) - set([f["id"] for f in followers_old]))
     followers_removed = list(set([f["id"] for f in followers_old]) - set([f["id"] for f in followers_new]))
 
     print(f"{time.strftime('%Y-%m-%d %H:%M:%S')}: {len(followers_new)} (\033[01m\033[92m{len(followers_added):+d}\033[00m/\033[01m\033[91m-{len(followers_removed)}\033[00m)")
+
 
     if len(followers_old) > 0 and len(followers_added) > 0:
         for follower_id in followers_added:
@@ -101,6 +109,7 @@ while True:
                 print(f"\033[01m\033[92mhttps://instagram.com/{follower_username}/\033[00m")
             except:
                 pass
+
 
     if len(followers_old) > 0 and len(followers_removed) > 0:
         for follower_id in followers_removed:
