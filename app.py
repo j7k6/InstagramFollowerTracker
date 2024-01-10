@@ -6,36 +6,33 @@ import time
 login = False
 session_id = None
 
-while login is False:
-    try:
-        with open("config.json", "r") as c:
-            cl = Client(json.load(c))
-    except:
-        pass
+cl = Client()
 
-    if session_id is not None:
-        try:
-            cl = Client()
-            cl.login_by_sessionid(session_id)
-        except Exception as e:
-            print(e)
-            pass
+try:
+    cl.load_settings("config.json")
+except:
+    pass
+
+while login is False:
+    print("---")
 
     try:
         user_id = cl.account_info().dict()["pk"]
         login = True
-          
+
         print(f"logged in as '{cl.account_info().dict()['username']}'")
+        break
     except:
-        print("login failed!")
-        print("---")
-        
         session_id = input("session_id: ") or None
+
+    try:
+        cl.login_by_sessionid(session_id)
+    except:
+        print("login_failed!")
 
 
 try:
-    with open("config.json", "w") as c:
-        json.dump(cl.get_settings(), c)
+    cl.dump_settings("config.json")
 except Exception as e:
     print(e)
 
