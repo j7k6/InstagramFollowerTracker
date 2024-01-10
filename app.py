@@ -2,10 +2,6 @@ from instagrapi import Client
 import json
 import time
 
-
-login = False
-session_id = None
-
 cl = Client()
 
 try:
@@ -13,14 +9,9 @@ try:
 except:
     pass
 
-while login is False:
-    print("---")
-
+while True:
     try:
         user_id = cl.account_info().dict()["pk"]
-        login = True
-
-        print(f"logged in as '{cl.account_info().dict()['username']}'")
         break
     except:
         session_id = input("session_id: ") or None
@@ -29,12 +20,14 @@ while login is False:
         cl.login_by_sessionid(session_id)
     except:
         print("login_failed!")
-
+        print("---")
 
 try:
     cl.dump_settings("config.json")
 except Exception as e:
     print(e)
+
+print(f"logged in as '{cl.account_info().dict()['username']}'")
 
 
 while True:
