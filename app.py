@@ -1,11 +1,14 @@
 from instagrapi import Client
 import json
+import os
 import time
 
+
+config_file = os.path.join(os.path.dirname(__file__), 'config.json')
 cl = Client()
 
 try:
-    cl.load_settings('config.json')
+    cl.load_settings(config_file)
 except:
     pass
 
@@ -27,10 +30,14 @@ while True:
 print(f"logged in as '{user_name}'")
 
 try:
-    cl.dump_settings('config.json')
+    cl.dump_settings(config_file)
 except Exception as e:
     print(e)
 
+
+followers_file = os.path.join(os.path.dirname(__file__), f"followers_{user_id}.txt")
+unfollowers_file = os.path.join(os.path.dirname(__file__), f"unfollowers_{user_id}.txt")
+followers_old = []
 
 while True:
     print("---")
@@ -52,32 +59,33 @@ while True:
         for follower_id in list(followers.keys()):
             followers_new.append({'id': follower_id, 'username': followers[follower_id].username})
 
-        assert len(followers) > 0
+        assert len(followers_new) > 0
+    except AssertionError:
+        print("no followers found")
+        continue
     except Exception as e:
         print(e)
         continue
 
+    if len(followers_old) == 0:
+        try:
+            with open(followers_file) as f:
+                followers_raw = f.read().splitlines()
+        except:
+            pass
 
-    followers_old = []
-
-    try:
-        with open(f"followers_{user_id}.txt") as f:
-            followers_raw = f.read().splitlines()
-    except:
-        pass
-
-    try:
-        for follower in followers_raw:
-            (follower_id, follower_username) = follower.split('|')
-            followers_old.append({'id': follower_id, 'username': follower_username})
-    except:
-        followers_old = []
+        try:
+            for follower in followers_raw:
+                (follower_id, follower_username) = follower.split('|')
+                followers_old.append({'id': follower_id, 'username': follower_username})
+        except:
+            followers_old = []
 
 
     followers_out = []
 
     try:
-        with open(f"followers_{user_id}.txt", "w") as f:
+        with open(followers_file, 'w') as f:
             for follower in followers_new:
                 followers_out.append(f"{follower['id']}|{follower['username']}")
 
@@ -109,7 +117,9 @@ while True:
 
                     print(f"\033[01m\033[91mhttps://instagram.com/{follower_username}/\033[00m")
 
-                    with open(f"unfollowers_{user_id}.txt", "a+") as f:
+                    with open(unfollowers_file, 'a+') as f:
                         f.write(f"{follower_id}|{follower_username}\n")
                 except:
                     pass
+
+    followers_old = followers_new
