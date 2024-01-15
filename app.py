@@ -1,4 +1,5 @@
 from instagrapi import Client
+import datetime
 import json
 import os
 import time
@@ -37,6 +38,7 @@ except Exception as e:
 
 followers_file = os.path.join(os.path.dirname(__file__), f"followers_{user_id}.txt")
 unfollowers_file = os.path.join(os.path.dirname(__file__), f"unfollowers_{user_id}.txt")
+
 followers_old = []
 
 while True:
@@ -44,7 +46,7 @@ while True:
 
     try:
         while (time.time() - start_time) < 3600:
-            time.sleep(10)
+            time.sleep(1)
     except NameError:
         pass
     finally:
@@ -67,17 +69,13 @@ while True:
         print(e)
         continue
 
+
     if len(followers_old) == 0:
         try:
             with open(followers_file) as f:
-                followers_raw = f.read().splitlines()
-        except:
-            pass
-
-        try:
-            for follower in followers_raw:
-                (follower_id, follower_username) = follower.split('|')
-                followers_old.append({'id': follower_id, 'username': follower_username})
+                for follower in f.read().splitlines():
+                    (follower_id, follower_username) = follower.split('|')
+                    followers_old.append({'id': follower_id, 'username': follower_username})
         except:
             followers_old = []
 
@@ -96,10 +94,9 @@ while True:
 
 
     followers_added = list(set([f['id'] for f in followers_new]) - set([f['id'] for f in followers_old]))
-
     followers_removed = list(set([f['id'] for f in followers_old]) - set([f['id'] for f in followers_new]))
 
-    print(f"{time.strftime('%Y-%m-%d %H:%M:%S')}: {len(followers_new)} (\033[01m\033[92m{len(followers_added):+d}\033[00m/\033[01m\033[91m-{len(followers_removed)}\033[00m)")
+    print(f"{datetime.datetime.now()}: {len(followers_new)} (\033[01m\033[92m{len(followers_added):+d}\033[00m/\033[01m\033[91m-{len(followers_removed)}\033[00m)")
 
 
     if len(followers_old) > 0:
