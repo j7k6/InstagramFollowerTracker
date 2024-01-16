@@ -73,24 +73,26 @@ while True:
     if len(followers_old) == 0:
         try:
             with open(followers_file) as f:
-                for follower in f.read().splitlines():
+                followers_raw = f.read().splitlines()
+        except:
+            followers_raw = []
+    
+        if len(followers_raw) > 0:
+            for follower in followers_raw:
+                try:
                     (follower_id, follower_username) = follower.split('|')
                     followers_old.append({'id': follower_id, 'username': follower_username})
-        except:
-            followers_old = []
+                except:
+                    pass
 
 
-    followers_out = []
+    followers_out = [f"{f['id']}|{f['username']}" for f in followers_new]
 
     try:
         with open(followers_file, 'w') as f:
-            for follower in followers_new:
-                followers_out.append(f"{follower['id']}|{follower['username']}")
-
             f.write('\n'.join(followers_out))
     except Exception as e:
         print(e)
-        break
 
 
     followers_added = list(set([f['id'] for f in followers_new]) - set([f['id'] for f in followers_old]))
