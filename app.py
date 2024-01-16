@@ -53,18 +53,9 @@ while True:
         start_time = time.time()
 
 
-    followers_new = []
-
     try:
         followers = cl.user_followers(user_id, False)
-
-        for follower_id in list(followers.keys()):
-            followers_new.append({'id': follower_id, 'username': followers[follower_id].username})
-
-        assert len(followers_new) > 0
-    except AssertionError:
-        print("no followers found")
-        continue
+        followers_new = [{'id': f, 'username': followers[f].username} for f in list(followers.keys())]
     except Exception as e:
         print(e)
         continue
