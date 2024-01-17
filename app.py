@@ -24,8 +24,8 @@ while True:
 
     try:
         cl.login_by_sessionid(session_id)
-    except:
-        print("login_failed!")
+    except Exception as e:
+        print(e)
         print("---")
 
 print(f"logged in as '{user_name}'")
@@ -40,17 +40,15 @@ followers_file = os.path.join(os.path.dirname(__file__), f"followers_{user_id}.t
 unfollowers_file = os.path.join(os.path.dirname(__file__), f"unfollowers_{user_id}.txt")
 
 followers_old = []
+start_time = 0
 
 while True:
     print("---")
 
-    try:
-        while (time.time() - start_time) < 3600:
-            time.sleep(1)
-    except NameError:
-        pass
-    finally:
-        start_time = time.time()
+    while (time.time() - start_time) < 3600:
+        time.sleep(1)
+    
+    start_time = time.time()
 
 
     try:
@@ -93,19 +91,16 @@ while True:
 
     if len(followers_old) > 0:
         for follower_id in followers_added:
-            try:
-                follower_username = [f for f in followers_new if f['id'] == follower_id][0]['username']
+            follower_username = [f for f in followers_new if f['id'] == follower_id][0]['username']
 
-                print(f"\033[01m\033[92mhttps://instagram.com/{follower_username}/\033[00m")
-            except:
-                pass
+            print(f"\033[01m\033[92mhttps://instagram.com/{follower_username}/\033[00m")
 
         for follower_id in followers_removed:
+            follower_username = [f for f in followers_old if f['id'] == follower_id][0]['username']
+
+            print(f"\033[01m\033[91mhttps://instagram.com/{follower_username}/\033[00m")
+            
             try:
-                follower_username = [f for f in followers_old if f['id'] == follower_id][0]['username']
-
-                print(f"\033[01m\033[91mhttps://instagram.com/{follower_username}/\033[00m")
-
                 with open(unfollowers_file, 'a+') as f:
                     f.write(f"{follower_id}|{follower_username}\n")
             except:
