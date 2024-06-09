@@ -1,8 +1,6 @@
 from instagrapi import Client
-import datetime
 import json
 import os
-import time
 
 
 config_file = os.path.join(os.path.dirname(__file__), 'config.json')
@@ -40,70 +38,62 @@ followers_file = os.path.join(os.path.dirname(__file__), f"followers_{user_id}.t
 unfollowers_file = os.path.join(os.path.dirname(__file__), f"unfollowers_{user_id}.txt")
 
 followers_old = []
-start_time = 0
 
-while True:
-    print("---")
+print("---")
 
-    while (time.time() - start_time) < 3600:
-        time.sleep(1)
-    
-    start_time = time.time()
+try:
+    followers = cl.user_followers(user_id, False)
+except Exception as e:
+    print(e)
+    exit()
+
+followers_new = [{'id': f, 'username': followers[f].username} for f in list(followers.keys())]
 
 
+if len(followers_old) == 0:
     try:
-        followers = cl.user_followers(user_id, False)
-        followers_new = [{'id': f, 'username': followers[f].username} for f in list(followers.keys())]
-    except Exception as e:
-        print(e)
-        continue
+        with open(followers_file) as f:
+            followers_raw = f.read().splitlines()
+    except:
+        followers_raw = []
 
-
-    if len(followers_old) == 0:
+    for follower in followers_raw:
         try:
-            with open(followers_file) as f:
-                followers_raw = f.read().splitlines()
+            (follower_id, follower_username) = follower.split('|')
+            followers_old.append({'id': follower_id, 'username': follower_username})
         except:
-            followers_raw = []
-    
-        for follower in followers_raw:
-            try:
-                (follower_id, follower_username) = follower.split('|')
-                followers_old.append({'id': follower_id, 'username': follower_username})
-            except:
-                pass
+            pass
 
 
-    followers_out = [f"{f['id']}|{f['username']}" for f in followers_new]
+followers_out = [f"{f['id']}|{f['username']}" for f in followers_new]
 
-    try:
-        with open(followers_file, 'w') as f:
-            f.write('\n'.join(followers_out))
-    except Exception as e:
-        print(e)
-
-
-    followers_added = list(set([f['id'] for f in followers_new]) - set([f['id'] for f in followers_old]))
-    followers_removed = list(set([f['id'] for f in followers_old]) - set([f['id'] for f in followers_new]))
-
-    print(f"{datetime.datetime.now()}: {len(followers_new)} (\033[01m\033[92m{len(followers_added):+d}\033[00m/\033[01m\033[91m-{len(followers_removed)}\033[00m)")
+try:
+    with open(followers_file, 'w') as f:
+        f.write('\n'.join(followers_out))
+except Exception as e:
+    print(e)
 
 
-    if len(followers_old) > 0:
-        for follower_id in followers_added:
-            follower_username = [f for f in followers_new if f['id'] == follower_id][0]['username']
+followers_added = list(set([f['id'] for f in followers_new]) - set([f['id'] for f in followers_old]))
+followers_removed = list(set([f['id'] for f in followers_old]) - set([f['id'] for f in followers_new]))
 
-            print(f"\033[01m\033[92mhttps://instagram.com/{follower_username}/\033[00m")
+print(f"{len(followers_new)} (\033[01m\033[92m{len(followers_added):+d}\033[00m/\033[01m\033[91m-{len(followers_removed)}\033[00m)")
 
-        for follower_id in followers_removed:
-            follower_username = [f for f in followers_old if f['id'] == follower_id][0]['username']
+if len(followers_old) > 0:
+    for follower_id in followers_added:
+        follower_username = [f for f in followers_new if f['id'] == follower_id][0]['username']
 
-            print(f"\033[01m\033[91mhttps://instagram.com/{follower_username}/\033[00m")
-            
-            try:
-                with open(unfollowers_file, 'a+') as f:
-                    f.write(f"{follower_id}|{follower_username}\n")
-            except:
-                pass
+        print(f"\033[01m\033[92mhttps://instagram.com/{follower_username}/\033[00m")
 
-    followers_old = followers_new
+    for follower_id in followers_removed:
+        follower_username = [f for f in followers_old if f['id'] == follower_id][0]['username']
+
+        print(f"\033[01m\033[91mhttps://instagram.com/{follower_username}/\033[00m")
+        
+        try:
+            with open(unfollowers_file, 'a+') as f:
+                f.write(f"{follower_id}|{follower_username}\n")
+        except:
+            pass
+
+followers_old = followers_new
