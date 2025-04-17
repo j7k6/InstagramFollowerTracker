@@ -1,3 +1,5 @@
+.DS_Store
+.venv
 config.json
 *.txt
 !requirements.txt

@@ -13,8 +13,8 @@ except:
 
 while True:
     try:
-        user_id = cl.account_info().dict()['pk']
-        user_name = cl.account_info().dict()['username']
+        user_id = cl.account_info().model_dump()['pk']
+        user_name = cl.account_info().model_dump()['username']
 
         break
     except:
